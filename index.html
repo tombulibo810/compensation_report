@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>碰景 FunSpot · 高保真原型 v4</title>
+<style>
+  :root{
+    --paper:#F0F2F5;
+    --paper-2:#E8EBF0;
+    --card:#FFFFFF;
+    --ink:#1A1A1A;
+    --ink-2:#555555;
+    --ink-3:#999999;
+    --line:#E5E7EB;
+    --brand:#1A1A1A;
+    --brand-deep:#000000;
+    --accent:#2D9B8E;
+    --accent-light:#E0F2EF;
+    --teal:#2D9B8E;
+    --gold:#C9A063;
+    --gold-bright:#E8C07A;
+    --pink:#C9788A;
+    --purple:#8B6EC9;
+    --gray:#9AA0A6;
+    --shadow:0 4px 16px rgba(0,0,0,.06);
+    --shadow-md:0 10px 30px rgba(0,0,0,.1);
+    --radius:24px;
+    --radius-sm:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{
+    font-family:"Microsoft YaHei","微软雅黑","PingFang SC","思源黑体","Source Han Sans SC","Hiragino Sans GB",-apple-system,sans-serif;
+    background:#E5E7EB;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:40px;color:var(--ink);
+  }
+
+  /* ===== STAGE INFO ===== */
+  .stage-info{width:280px}
+  .stage-info .mark{
+    width:56px;height:56px;border-radius:14px;background:var(--brand);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;margin-bottom:18px;
+  }
+  .stage-info h1{font-size:24px;letter-spacing:2px;margin-bottom:4px}
+  .stage-info .en{color:var(--ink-3);font-size:10px;letter-spacing:4px;margin-bottom:20px}
+  .stage-info p{color:var(--ink-2);font-size:12.5px;line-height:1.9;margin-bottom:16px}
+  .stage-info .meta{
+    background:rgba(255,255,255,.6);border:1px solid var(--line);padding:14px 16px;
+    font-size:11.5px;color:var(--ink-2);line-height:2;
+  }
+  .stage-info .meta b{color:var(--ink)}
+
+  /* ===== PHONE ===== */
+  .phone{
+    width:390px;height:844px;background:var(--paper);
+    border-radius:48px;overflow:hidden;position:relative;
+    border:11px solid #111;box-shadow:0 50px 100px rgba(0,0,0,.25);
+  }
+  .notch{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:120px;height:28px;background:#111;border-radius:0 0 18px 18px;z-index:100;
+  }
+  .statusbar{
+    height:44px;display:flex;align-items:flex-end;justify-content:space-between;
+    padding:0 26px 6px;font-size:13px;font-weight:600;position:relative;z-index:20;
+  }
+
+  /* ===== SCREENS ===== */
+  .screen{
+    position:absolute;top:44px;left:0;right:0;bottom:0;
+    display:none;flex-direction:column;overflow:hidden;
+  }
+  .screen.active{display:flex;animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+  /* ===== 统一组件 ===== */
+  .page-pad{padding:0 22px}
+  .sec-label{
+    font-size:10px;letter-spacing:3px;color:var(--accent);font-weight:700;
+    display:flex;align-items:center;gap:8px;margin-bottom:8px;text-transform:uppercase;
+  }
+  .sec-label::before{content:"";width:20px;height:2px;background:var(--accent)}
+  .sec-title{font-size:19px;font-weight:800;letter-spacing:.5px;margin-bottom:12px}
+
+  .btn-primary{
+    background:var(--brand);color:#fff;border:none;
+    padding:15px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:2px;width:100%;
+    transition:opacity .15s;border-radius:999px;
+  }
+  .btn-primary:hover{opacity:.85}
+  .btn-outline{
+    background:transparent;color:var(--brand);border:1.5px solid var(--brand);
+    padding:14px;font-size:13px;cursor:pointer;letter-spacing:1px;width:100%;border-radius:999px;
+  }
+  .btn-brand{
+    background:var(--brand);color:#fff;border:none;
+    padding:14px;font-size:13.5px;font-weight:600;cursor:pointer;letter-spacing:2px;width:100%;
+  }
+  .chip{
+    padding:7px 13px;border:1px solid var(--line);background:var(--card);
+    font-size:12px;cursor:pointer;white-space:nowrap;color:var(--ink-2);transition:all .15s;
+  }
+  .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  /* 稀有度标签 */
+  .rarity{
+    display:inline-block;font-size:9px;font-weight:800;padding:2px 6px;letter-spacing:1px;color:#fff;
+  }
+  .r-ssr{background:var(--gold)}
+  .r-sr{background:var(--pink)}
+  .r-r{background:var(--purple)}
+  .r-n{background:var(--gray)}
+
+  /* ===== TAB BAR ===== */
+  .tabbar{
+    height:76px;background:var(--card);border-top:1px solid var(--line);
+    display:flex;align-items:stretch;justify-content:space-around;
+    padding-top:10px;flex-shrink:0;margin-top:auto;position:relative;z-index:10;
+  }
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--ink-3);cursor:pointer;width:56px}
+  .tab .ic{font-size:18px}
+  .tab.active{color:var(--ink);font-weight:700}
+  .tab.draw{position:relative;top:-22px}
+  .tab.draw .ic{
+    width:52px;height:52px;border-radius:50%;background:var(--brand);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+    border:4px solid var(--paper);font-weight:700;
+  }
+
+  /* ===== 1. SPLASH ===== */
+  #splash{background:var(--ink);color:var(--paper);align-items:center;justify-content:center;padding:0 30px;text-align:center}
+  #splash .big{
+    width:100px;height:100px;border:2px solid rgba(255,255,255,.3);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;margin-bottom:26px;
+  }
+  #splash h1{font-size:36px;letter-spacing:12px;margin-bottom:10px;font-weight:900;text-indent:12px}
+  #splash .slogan{font-size:12px;letter-spacing:4px;opacity:.7;margin-bottom:4px}
+  #splash .en{font-size:9px;letter-spacing:3px;opacity:.4;margin-bottom:46px}
+  #splash .start{background:var(--brand);color:#fff;border:none;padding:14px 56px;font-size:13px;letter-spacing:4px;cursor:pointer;font-weight:700}
+
+  /* ===== 2. LOCATION ===== */
+  #location{background:var(--paper)}
+  .loc-hero{
+    height:300px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;
+    border-bottom:1.5px solid var(--ink);position:relative;
+  }
+  .loc-hero .circle{
+    width:190px;height:190px;border-radius:50%;border:1.5px solid var(--ink);
+    background:var(--card);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative;
+  }
+  .loc-hero .dot{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--brand);top:80px;left:105px;border:2px solid #fff}
+  .loc-body{padding:26px 24px;flex:1}
+  .loc-body h2{font-size:22px;font-weight:900;margin-bottom:8px}
+  .loc-body p{color:var(--ink-2);font-size:13px;line-height:1.8;margin-bottom:22px}
+
+  /* ===== 3. LOGIN ===== */
+  #login{background:var(--card);padding:0 26px}
+  #login .head{padding-top:36px;margin-bottom:28px}
+  #login .head h2{font-size:24px;font-weight:900;margin-bottom:6px}
+  #login .head p{color:var(--ink-3);font-size:12.5px}
+  .field{border-bottom:1.5px solid var(--ink);padding:13px 0;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+  .field input{border:none;outline:none;flex:1;font-size:14.5px;background:transparent}
+  .field .code{color:var(--brand);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .third{display:flex;gap:12px;margin-top:18px}
+  .third .c{flex:1;border:1.5px solid var(--line);padding:13px;text-align:center;font-size:13px;cursor:pointer}
+  .guest{margin-top:auto;margin-bottom:28px;text-align:center;font-size:12px;color:var(--ink-3)}
+  .guest span{color:var(--brand);cursor:pointer;text-decoration:underline}
+
+  /* ===== 4. SURVEY ===== */
+  #survey{background:var(--paper);padding:0 22px}
+  .sv-bar{display:flex;gap:4px;margin:16px 0 22px}
+  .sv-bar i{flex:1;height:3px;background:var(--line)}
+  .sv-bar i:nth-child(-n+4){background:var(--brand)}
+  #survey h2{font-size:20px;font-weight:900;margin-bottom:4px}
+  #survey .sub{color:var(--ink-3);font-size:12px;margin-bottom:18px}
+  .sv-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+
+  /* ===== 5. HOME ===== */
+  #home{background:var(--paper)}
+  .home-top{padding:6px 22px 12px;display:flex;justify-content:space-between;align-items:center}
+  .home-top .city{font-size:17px;font-weight:900}
+  .home-top .city span{font-size:10px;color:var(--ink-3);font-weight:400;margin-left:4px}
+  .home-top .me{
+    display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--ink-2);font-size:12px;
+  }
+  .home-top .me .mini-av{
+    width:32px;height:32px;border-radius:50%;background:var(--paper-2);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .home-top .me .mini-av svg{width:18px;height:18px;fill:var(--ink-3)}
+
+  .today-slip{
+    position:relative;margin:0 22px 14px;background:var(--card);border-radius:var(--radius);
+    padding:16px;box-shadow:var(--shadow);
+  }
+  .today-slip::before{
+    content:"今日签";position:absolute;top:-8px;left:12px;background:var(--brand);color:#fff;
+    font-size:9px;padding:2px 8px;letter-spacing:1px;font-weight:700;
+  }
+  .today-slip .date{font-size:10.5px;color:var(--ink-3);margin-bottom:6px;letter-spacing:1px}
+  .today-slip h3{font-size:16px;font-weight:800;line-height:1.5;margin-bottom:10px}
+  .today-slip .row{display:flex;gap:14px;font-size:11px;color:var(--ink-2)}
+  .today-slip .row b{color:var(--brand)}
+
+  .stat-strip{display:flex;margin:0 22px 16px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .stat-strip .ss{flex:1;padding:12px;text-align:center;border-right:1px solid var(--line)}
+  .stat-strip .ss:last-child{border-right:none}
+  .stat-strip .ss b{display:block;font-size:17px;font-weight:900}
+  .stat-strip .ss span{font-size:9.5px;color:var(--ink-3);letter-spacing:1px}
+
+  .spot-scroll{display:flex;gap:10px;padding:0 22px;margin-bottom:16px;overflow:hidden}
+  .spot-card{min-width:135px;background:var(--card);border-radius:var(--radius-sm);cursor:pointer;box-shadow:var(--shadow);transition:transform .15s;overflow:hidden}
+  .spot-card:hover{transform:translateY(-2px)}
+  .spot-card .pic{height:90px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-size:38px;border-bottom:1px solid var(--line)}
+  .spot-card .info{padding:9px 11px}
+  .spot-card .nm{font-size:12.5px;font-weight:700;margin-bottom:3px}
+  .spot-card .meta{font-size:10px;color:var(--ink-3);display:flex;align-items:center;gap:4px}
+
+  .draw-block{
+    margin:0 22px 14px;background:var(--ink);color:#fff;
+    padding:24px;text-align:center;position:relative;cursor:pointer;border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .draw-block::after{
+    content:"抽";position:absolute;right:-12px;bottom:-12px;width:54px;height:54px;
+    border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:900;border:4px solid var(--paper);
+  }
+  .draw-block .lbl{font-size:9px;letter-spacing:3px;opacity:.5;margin-bottom:4px}
+  .draw-block h4{font-size:16px;font-weight:800;letter-spacing:2px;margin-bottom:2px}
+  .draw-block .sub{font-size:10.5px;opacity:.5}
+
+  /* 附近推荐纵向列表 */
+  .nearby-list{padding:0 22px;margin-bottom:14px}
+  .nearby-item{
+    display:flex;gap:14px;align-items:center;background:var(--card);
+    padding:12px;border-radius:var(--radius-sm);cursor:pointer;
+    box-shadow:var(--shadow);margin-bottom:10px;transition:transform .15s;
+  }
+  .nearby-item:hover{transform:translateX(4px)}
+  .nearby-item .pic{
+    width:56px;height:56px;border-radius:12px;overflow:hidden;flex-shrink:0;
+    background:var(--paper-2);
+  }
+  .nearby-item .pic img{width:100%;height:100%;object-fit:cover}
+  .nearby-item .info{flex:1}
+  .nearby-item .nm{font-size:14px;font-weight:700;margin-bottom:4px}
+  .nearby-item .meta{font-size:11px;color:var(--ink-3);display:flex;gap:8px;align-items:center}
+  .nearby-item .meta .tag{
+    background:var(--accent-light);color:var(--accent);font-size:9px;
+    padding:2px 6px;border-radius:6px;font-weight:600;
+  }
+  .nearby-item .dist{font-size:12px;color:var(--ink-2);font-weight:600;white-space:nowrap}
+
+  /* ===== 6. RESULT ===== */
+  #result{background:var(--ink);color:var(--paper);padding:0 24px;text-align:center}
+  #result .congrats{font-size:9px;letter-spacing:5px;opacity:.5;margin-bottom:4px}
+  #result .rarity-big{font-size:42px;font-weight:900;letter-spacing:6px;margin-bottom:16px}
+  #result .rarity-big.gold{color:var(--gold-bright)}
+  #result .rarity-big.pink{color:var(--pink)}
+  #result .rarity-big.purple{color:var(--purple)}
+  #result .rarity-big.gray{color:var(--gray)}
+
+  .flip-card{width:210px;height:280px;cursor:pointer;perspective:800px;position:relative;flex-shrink:0}
+  .flip-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .7s}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+  .flip-face{position:absolute;inset:0;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .flip-front{
+    background:var(--ink);border:1px solid rgba(255,255,255,.1);
+    color:var(--paper);position:relative;overflow:hidden;
+  }
+  .flip-front::before{
+    content:"";position:absolute;inset:12px;border:1px solid rgba(255,255,255,.15);
+  }
+  .flip-front::after{
+    content:"";position:absolute;width:120px;height:120px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.1);top:50%;left:50%;transform:translate(-50%,-50%);
+  }
+  .flip-front .brand{font-size:28px;font-weight:900;letter-spacing:4px;opacity:.8}
+  .flip-front .sub{font-size:8px;letter-spacing:3px;opacity:.4;margin-top:6px}
+  .flip-front .tip{
+    position:absolute;bottom:20px;font-size:10px;letter-spacing:3px;
+    opacity:.5;animation:blink 1.5s infinite;
+  }
+  @keyframes blink{0%,100%{opacity:.3}50%{opacity:.8}}
+  .flip-back{background:var(--card);color:var(--ink);transform:rotateY(180deg);padding:20px 16px;justify-content:flex-start;padding-top:30px}
+  .flip-back.gold{border:2px solid var(--gold);box-shadow:0 0 30px rgba(201,160,99,.3)}
+  .flip-back.pink{border:2px solid var(--pink)}
+  .flip-back.purple{border:2px solid var(--purple)}
+  .flip-back.gray{border:1.5px solid var(--gray)}
+  .flip-back .pic{font-size:56px;margin-bottom:14px}
+  .flip-back .nm{font-size:18px;font-weight:900;margin-bottom:4px;text-align:center}
+  .flip-back .en{font-size:8.5px;letter-spacing:2px;color:var(--ink-3);margin-bottom:12px;text-align:center}
+  .flip-back .ds{font-size:10.5px;color:var(--ink-2);line-height:1.7;text-align:center}
+  .flip-back .no{position:absolute;bottom:10px;right:12px;font-size:9px;color:var(--ink-3);letter-spacing:1px}
+
+  .result-switch{display:flex;gap:6px;margin-bottom:16px}
+  .result-switch .dot{width:24px;height:4px;background:rgba(255,255,255,.2);cursor:pointer}
+  .result-switch .dot.on{background:var(--brand)}
+  .result-actions{display:flex;gap:8px;width:100%}
+  .result-actions button{flex:1;padding:12px;border:none;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px}
+  .btn-ghost-paper{background:transparent;color:var(--paper);border:1px solid rgba(255,255,255,.3)!important}
+  .btn-solid-paper{background:var(--brand);color:#fff}
+
+  /* ===== 7. 集卡册 ===== */
+  #album{background:var(--paper)}
+  .album-head{padding:12px 22px 8px;display:flex;justify-content:space-between;align-items:baseline}
+  .album-head h2{font-size:20px;font-weight:900}
+  .album-head .cnt{font-size:11px;color:var(--ink-3)}
+
+  /* 册页封面 */
+  .album-cover{
+    margin:0 22px 14px;background:var(--ink);color:#fff;padding:24px;position:relative;overflow:hidden;
+    border-radius:var(--radius);
+  }
+  .album-cover::after{
+    content:"北";position:absolute;right:-10px;bottom:-30px;font-size:100px;font-weight:900;opacity:.08;
+  }
+  .album-cover .vol{font-size:9px;letter-spacing:3px;opacity:.5;margin-bottom:6px}
+  .album-cover h3{font-size:18px;font-weight:800;margin-bottom:4px}
+  .album-cover .sub{font-size:11px;opacity:.6}
+  .album-cover .prog{margin-top:12px;height:4px;background:rgba(255,255,255,.15)}
+  .album-cover .prog i{display:block;height:100%;width:22%;background:var(--gold)}
+  .album-cover .prog-txt{font-size:9px;opacity:.5;margin-top:4px;letter-spacing:1px}
+
+  .album-filters{display:flex;gap:6px;padding:0 22px;margin-bottom:12px;overflow:hidden}
+
+  .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 22px;max-height:380px;overflow-y:auto;padding-bottom:10px}
+  .collect-card{
+    background:var(--card);border-radius:var(--radius-sm);cursor:pointer;position:relative;box-shadow:var(--shadow);overflow:hidden;
+  }
+  .collect-card.gold{border-top:3px solid var(--gold)}
+  .collect-card.pink{border-top:3px solid var(--pink)}
+  .collect-card.purple{border-top:3px solid var(--purple)}
+  .collect-card.gray{border-top:3px solid var(--gray)}
+  .collect-card .pic{height:95px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-size:36px;position:relative}
+  .collect-card .no{position:absolute;top:6px;left:8px;font-size:8.5px;color:var(--ink-3);letter-spacing:1px;font-weight:700}
+  .collect-card .rt{position:absolute;top:6px;right:6px}
+  .collect-card .info{padding:8px 10px 10px}
+  .collect-card .nm{font-size:12px;font-weight:700}
+  .collect-card .loc{font-size:9.5px;color:var(--ink-3);margin-top:2px}
+  .collect-card.locked{opacity:.45}
+  .collect-card.locked .pic{color:var(--ink-3)}
+  .collect-card.locked .nm{color:var(--ink-3)}
+
+  /* ===== 8. DETAIL ===== */
+  #detail{background:var(--card)}
+  .detail-hero{
+    height:240px;background:var(--paper-2);position:relative;
+    background-size:cover;background-position:center;
+  }
+  .detail-hero::before{
+    content:"";position:absolute;top:0;left:0;right:0;bottom:0;
+    background:linear-gradient(to bottom, rgba(0,0,0,.1) 0%, rgba(0,0,0,.3) 100%);
+  }
+  .detail-hero .back{position:absolute;top:16px;left:18px;width:36px;height:36px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;z-index:10;backdrop-filter:blur(10px)}
+  .detail-hero .save{position:absolute;top:16px;right:18px;width:36px;height:36px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;z-index:10;backdrop-filter:blur(10px)}
+  .detail-body{padding:18px 22px;flex:1}
+  .detail-body .top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .detail-body h2{font-size:21px;font-weight:900;margin-bottom:3px}
+  .detail-body .addr{font-size:11px;color:var(--ink-3);margin-bottom:12px}
+  .detail-body .desc{font-size:12.5px;color:var(--ink-2);line-height:1.8;margin-bottom:14px}
+  .detail-stats{display:flex;border:1px solid var(--line);margin-bottom:16px}
+  .detail-stats .ds{flex:1;padding:10px;text-align:center;border-right:1px solid var(--line)}
+  .detail-stats .ds:last-child{border-right:none}
+  .detail-stats .ds b{display:block;font-size:14px;font-weight:900}
+  .detail-stats .ds span{font-size:9px;color:var(--ink-3)}
+  .nearby-row{display:flex;gap:8px;overflow:hidden;margin-top:4px}
+  .nearby-row .nb{min-width:90px;height:64px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-size:26px;border:1px solid var(--line)}
+  .detail-cta{display:flex;gap:8px;margin-top:14px}
+  .detail-cta .nav{flex:2;background:var(--ink);color:var(--paper);border:none;padding:13px;font-size:13px;font-weight:700;cursor:pointer}
+  .detail-cta .ck{flex:1;background:transparent;color:var(--ink);border:1.5px solid var(--ink);padding:13px;font-size:12px;font-weight:700;cursor:pointer}
+
+  /* ===== 9. NAVI ===== */
+  #navi{background:var(--paper)}
+  .map-area{height:300px;background:repeating-linear-gradient(0deg,transparent,transparent 26px,var(--line) 26px,var(--line) 27px),repeating-linear-gradient(90deg,transparent,transparent 26px,var(--line) 26px,var(--line) 27px),var(--card);position:relative;border-bottom:1.5px solid var(--ink)}
+  .map-area .me{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--teal);border:3px solid var(--card);left:75px;top:200px}
+  .map-area .dest{position:absolute;width:38px;height:38px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;left:150px;top:110px}
+  .map-area .route-line{position:absolute;left:85px;top:195px;width:85px;height:2.5px;background:var(--ink);transform:rotate(-38deg)}
+  .navi-bottom{padding:18px 22px;flex:1}
+  .navi-bottom h3{font-size:16px;font-weight:900;margin-bottom:3px}
+  .navi-bottom .eta{font-size:11px;color:var(--ink-3);margin-bottom:14px}
+  .route-opt{display:flex;align-items:center;padding:12px 13px;border:1px solid var(--line);background:var(--card);margin-bottom:8px;cursor:pointer;gap:11px}
+  .route-opt.on{border:1.5px solid var(--ink);background:var(--paper-2)}
+  .route-opt .ic{font-size:17px}
+  .route-opt .info{flex:1}
+  .route-opt .info b{font-size:12.5px;display:block}
+  .route-opt .info span{font-size:10px;color:var(--ink-3)}
+  .route-opt .min{font-size:13px;font-weight:900;color:var(--brand)}
+
+  /* ===== 10. CHECKIN ===== */
+  #checkin{background:var(--teal);color:#fff;align-items:center;justify-content:center;padding:0 28px;text-align:center}
+  #checkin .big{width:88px;height:88px;border:2px solid rgba(255,255,255,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:20px}
+  #checkin h2{font-size:22px;font-weight:900;margin-bottom:8px;letter-spacing:2px}
+  #checkin p{font-size:12.5px;opacity:.9;line-height:1.8;margin-bottom:22px}
+  .reward-strip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:14px;width:100%;margin-bottom:24px}
+  .reward-strip .rt{font-size:9px;letter-spacing:2px;opacity:.8;margin-bottom:5px}
+  .reward-strip .rv{font-size:16px;font-weight:900}
+
+  /* ===== 11. FEEDBACK ===== */
+  #feedback{background:var(--paper);padding:0 22px}
+  #feedback h2{font-size:20px;font-weight:900;padding-top:8px;margin-bottom:3px}
+  #feedback .sub{font-size:11.5px;color:var(--ink-3);margin-bottom:18px}
+  .stars-row{display:flex;gap:6px;font-size:30px;color:var(--line);margin-bottom:18px}
+  .stars-row .on{color:var(--gold)}
+  .fb-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .fb-input{background:var(--card);border:1px solid var(--line);padding:13px;min-height:80px;font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
+
+  /* ===== 12. 我的 ===== */
+  #profile{background:var(--paper)}
+  .prof-head{background:var(--ink);color:#fff;padding:24px 22px 50px}
+  .prof-head .row{display:flex;align-items:center;gap:14px}
+  .prof-head .av{
+    width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.15);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .prof-head .av svg{width:32px;height:32px;fill:rgba(255,255,255,.7)}
+  .prof-head .nm{font-size:17px;font-weight:800}
+  .prof-head .lv{font-size:10.5px;opacity:.6;letter-spacing:1px;margin-top:2px}
+  .prof-head .edit{margin-left:auto;font-size:11px;border:1px solid rgba(255,255,255,.3);padding:5px 12px;cursor:pointer}
+
+  .prof-stats{display:flex;background:var(--card);border-radius:var(--radius-sm);margin:-28px 22px 14px;position:relative;z-index:2;box-shadow:var(--shadow);overflow:hidden}
+  .prof-stats .ps{flex:1;padding:13px;text-align:center;border-right:1px solid var(--line)}
+  .prof-stats .ps:last-child{border-right:none}
+  .prof-stats .ps b{display:block;font-size:17px;font-weight:900}
+  .prof-stats .ps span{font-size:9.5px;color:var(--ink-3);letter-spacing:1px}
+
+  /* 勋章墙 */
+  .badge-sec{padding:0 22px;margin-bottom:14px}
+  .badge-row{display:flex;gap:10px;margin-top:8px}
+  .badge{flex:1;background:var(--card);border:1px solid var(--line);padding:12px 6px;text-align:center}
+  .badge .bic{font-size:24px;margin-bottom:4px}
+  .badge .bn{font-size:9.5px;color:var(--ink-2);font-weight:600}
+  .badge.locked{opacity:.35}
+
+  /* 足迹地图占位 */
+  .map-card{margin:0 22px 14px;background:var(--card);border:1px solid var(--line);padding:14px}
+  .map-card .map-visual{height:110px;background:var(--paper-2);position:relative;margin-bottom:10px}
+  .map-card .map-visual .pin{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--brand)}
+  .map-card .more{font-size:11px;color:var(--brand);text-align:right;cursor:pointer}
+
+  .menu-list{margin:0 22px 14px;background:var(--card);border-radius:var(--radius-sm);max-height:200px;overflow-y:auto;box-shadow:var(--shadow)}
+  .menu-item{display:flex;align-items:center;padding:13px 15px;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer}
+  .menu-item:last-child{border-bottom:none}
+  .menu-item .mi{margin-right:11px;font-size:16px}
+  .menu-item .arr{margin-left:auto;color:var(--ink-3)}
+
+  /* ===== 通用二级页头 ===== */
+  .sub-page{background:var(--paper)}
+  .sub-head{
+    display:flex;align-items:center;padding:16px 22px 14px;gap:12px;
+    background:var(--card);border-bottom:1px solid var(--line);
+  }
+  .sub-head .back{font-size:20px;cursor:pointer;color:var(--ink)}
+  .sub-head h2{font-size:17px;font-weight:800}
+
+  /* ===== 卡券中心 ===== */
+  .coupon-list{padding:16px 22px}
+  .coupon{
+    display:flex;background:var(--card);border-radius:var(--radius-sm);margin-bottom:12px;
+    overflow:hidden;box-shadow:var(--shadow);
+  }
+  .coupon .left{
+    width:80px;background:var(--brand);color:#fff;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:14px 8px;flex-shrink:0;
+  }
+  .coupon .left.teal{background:var(--teal)}
+  .coupon .left.gold{background:var(--gold)}
+  .coupon .left .num{font-size:20px;font-weight:900}
+  .coupon .left .unit{font-size:9px;opacity:.8;margin-top:2px}
+  .coupon .right{flex:1;padding:12px 14px}
+  .coupon .right .nm{font-size:13px;font-weight:700;margin-bottom:4px}
+  .coupon .right .ds{font-size:11px;color:var(--ink-3);margin-bottom:8px}
+  .coupon .right .expire{font-size:10px;color:var(--ink-3)}
+  .coupon .right .use{
+    float:right;background:var(--ink);color:var(--paper);font-size:11px;
+    padding:5px 14px;cursor:pointer;border:none;
+  }
+
+  /* ===== 碰景好友 ===== */
+  .friend-search{padding:14px 22px}
+  .friend-search .box{
+    background:var(--card);border:1px solid var(--line);padding:10px 14px;
+    font-size:13px;color:var(--ink-3);
+  }
+  .friend-list{padding:0 22px}
+  .friend-item{
+    display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);
+  }
+  .friend-item .av{
+    width:44px;height:44px;border-radius:50%;background:var(--paper-2);
+    display:flex;align-items:center;justify-content:center;font-size:20px;
+  }
+  .friend-item .info{flex:1}
+  .friend-item .nm{font-size:13.5px;font-weight:700}
+  .friend-item .meta{font-size:11px;color:var(--ink-3);margin-top:2px}
+  .friend-item .act{font-size:11px;color:var(--brand);cursor:pointer;font-weight:600}
+
+  /* ===== 设置 ===== */
+  .setting-list{margin:16px 22px;background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);overflow:hidden}
+  .setting-item{
+    display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);
+    font-size:13px;cursor:pointer;
+  }
+  .setting-item:last-child{border-bottom:none}
+  .setting-item .lbl{flex:1}
+  .setting-item .val{font-size:11px;color:var(--ink-3);margin-right:8px}
+  .setting-item .arr{color:var(--ink-3)}
+  .switch{
+    width:40px;height:22px;background:var(--line);border-radius:11px;position:relative;cursor:pointer;
+  }
+  .switch::after{
+    content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;
+    top:2px;left:2px;transition:all .2s;
+  }
+  .switch.on{background:var(--brand)}
+  .switch.on::after{left:20px}
+
+  /* ===== 编辑资料 ===== */
+  .edit-av{
+    display:flex;flex-direction:column;align-items:center;padding:24px 0;
+    background:var(--card);border-bottom:1px solid var(--line);
+  }
+  .edit-av .big{
+    width:72px;height:72px;border-radius:50%;background:var(--paper-2);
+    display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:8px;
+  }
+  .edit-av .change{font-size:12px;color:var(--brand);cursor:pointer}
+  .edit-form{padding:16px 22px}
+  .edit-row{
+    display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);font-size:13px;
+  }
+  .edit-row .lbl{width:70px;color:var(--ink-2)}
+  .edit-row .val{flex:1;text-align:right;color:var(--ink)}
+  .edit-row .arr{color:var(--ink-3);margin-left:6px}
+
+  /* ===== 足迹地图 ===== */
+  .foot-map{
+    height:280px;background:
+      repeating-linear-gradient(0deg,transparent,transparent 26px,var(--line) 26px,var(--line) 27px),
+      repeating-linear-gradient(90deg,transparent,transparent 26px,var(--line) 26px,var(--line) 27px),
+      var(--card);
+    position:relative;border-bottom:1px solid var(--line);
+  }
+  .foot-map .pin{
+    position:absolute;width:28px;height:28px;border-radius:50% 50% 50% 0;
+    transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;
+    font-size:12px;
+  }
+  .foot-list{padding:16px 22px}
+  .foot-item{
+    display:flex;gap:12px;padding:14px;background:var(--card);border-radius:var(--radius-sm);
+    margin-bottom:10px;align-items:center;box-shadow:var(--shadow);
+  }
+  .foot-item .pic{
+    width:48px;height:48px;border-radius:12px;overflow:hidden;flex-shrink:0;
+    background:var(--paper-2);
+  }
+  .foot-item .pic img{width:100%;height:100%;object-fit:cover}
+  .foot-item .info{flex:1}
+  .foot-item .nm{font-size:13px;font-weight:700}
+  .foot-item .date{font-size:10.5px;color:var(--ink-3);margin-top:2px}
+  .foot-item .badge{font-size:9px;color:var(--brand);font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"></div>
+
+  <!-- 1 LOCATION -->
+  <section class="screen active" id="location">
+    <div class="loc-hero">
+      <div class="circle">📍<div class="dot"></div></div>
+    </div>
+    <div class="loc-body">
+      <h2>开启附近奇遇</h2>
+      <p>允许碰景获取位置，基于你所在城市随机邂逅意想不到的角落。位置仅用于推荐。</p>
+      <button class="btn-primary" onclick="go('login')">允许并继续</button>
+      <div style="height:10px"></div>
+      <button class="btn-outline" onclick="go('login')">手动选择城市</button>
+    </div>
+  </section>
+
+  <!-- 3 LOGIN -->
+  <section class="screen" id="login">
+    <div class="head">
+      <h2>欢迎回来</h2>
+      <p>登录同步你的集卡册与足迹</p>
+    </div>
+    <div class="field">
+      <span style="color:var(--ink-3);font-size:12px">+86</span>
+      <input placeholder="手机号">
+      <span class="code">获取验证码</span>
+    </div>
+    <button class="btn-primary" onclick="go('survey')">登录 / 注册</button>
+    <div class="third">
+      <div class="c" onclick="go('survey')">微信</div>
+      <div class="c" onclick="go('survey')">Apple</div>
+      <div class="c" onclick="go('survey')">微博</div>
+    </div>
+    <div class="guest">先逛逛？<span onclick="go('survey')">游客进入 ›</span></div>
+  </section>
+
+  <!-- 4 SURVEY -->
+  <section class="screen" id="survey">
+    <div style="padding-top:18px">
+      <div class="sv-bar"><i></i><i></i><i></i><i></i><i></i></div>
+      <h2>你偏爱哪类风景？</h2>
+      <div class="sub">选 1-3 项，下次抽卡更准</div>
+      <div class="sv-chips">
+        <div class="chip on">历史古迹</div>
+        <div class="chip">胡同烟火</div>
+        <div class="chip">艺术展览</div>
+        <div class="chip">园林自然</div>
+        <div class="chip">咖啡小店</div>
+        <div class="chip">城市夜景</div>
+        <div class="chip">本地美食</div>
+        <div class="chip">拍照打卡</div>
+      </div>
+      <button class="btn-primary" onclick="go('home')">完成，去抽卡</button>
+      <div style="height:8px"></div>
+      <button class="btn-outline" onclick="go('home')">跳过</button>
+    </div>
+  </section>
+
+  <!-- 5 HOME -->
+  <section class="screen" id="home">
+    <div class="home-top">
+      <div class="city">北京 <span>▾ 东城区</span></div>
+      <div class="me" onclick="go('profile')">
+        <div class="mini-av">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z"/></svg>
+        </div>
+        我的
+      </div>
+    </div>
+
+    <div class="today-slip">
+      <div class="date">2026.10.27 · TUE · 宜出门</div>
+      <h3>今天适合偶遇一处皇城脚下的秘密</h3>
+      <div class="row">
+        <span>🔥 连续 <b>7</b> 天</span>
+        <span>🎴 剩 <b>5</b> 抽</span>
+        <span>⭐ 再 3 抽必得 SR</span>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="ss"><b id="homeCollected">8</b><span>已集卡</span></div>
+      <div class="ss"><b>12</b><span>已打卡</span></div>
+      <div class="ss"><b id="homeDraws">0</b><span>累计抽卡</span></div>
+    </div>
+
+    <div class="draw-block" onclick="drawCard()">
+      <div class="lbl">DAWN DRAW</div>
+      <h4>点我抽一张今日卡</h4>
+      <div class="sub">每次随机邂逅一个北京角落</div>
+    </div>
+
+    <div class="sec-label" style="padding:0 22px">附近推荐</div>
+    <div class="nearby-list">
+      <div class="nearby-item" onclick="openDetail('nanluoguxiang')">
+        <div class="pic"><img src="https://aka.doubaocdn.com/s/A30epEgnXB" alt="南锣鼓巷"></div>
+        <div class="info">
+          <div class="nm">南锣鼓巷</div>
+          <div class="meta"><span class="tag">胡同</span>东城区 · 4.8分</div>
+        </div>
+        <div class="dist">1.2km</div>
+      </div>
+      <div class="nearby-item" onclick="openDetail('shichahai')">
+        <div class="pic"><img src="https://aka.doubaocdn.com/s/SBPmYcNkLY" alt="什刹海"></div>
+        <div class="info">
+          <div class="nm">什刹海</div>
+          <div class="meta"><span class="tag">夜景</span>西城区 · 4.7分</div>
+        </div>
+        <div class="dist">2.8km</div>
+      </div>
+      <div class="nearby-item" onclick="openDetail('daowuying')">
+        <div class="pic"><img src="https://aka.doubaocdn.com/s/N0gqetSzrG" alt="五道营胡同"></div>
+        <div class="info">
+          <div class="nm">五道营胡同</div>
+          <div class="meta"><span class="tag">文艺</span>雍和宫 · 4.6分</div>
+        </div>
+        <div class="dist">3.5km</div>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab active"><div class="ic">⌂</div>首页</div>
+      <div class="tab" onclick="go('album')"><div class="ic">▦</div>集卡册</div>
+      <div class="tab draw" onclick="drawCard()"><div class="ic">✦</div></div>
+      <div class="tab" onclick="go('footprint')"><div class="ic">◎</div>足迹</div>
+      <div class="tab" onclick="go('profile')"><div class="ic">○</div>我的</div>
+    </div>
+  </section>
+
+  <!-- 6 RESULT（多卡切换） -->
+  <section class="screen" id="result">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 24px">
+      <div class="congrats" id="rCongrats" style="display:none;margin-bottom:8px">CONGRATULATIONS</div>
+      <div class="rarity-big gold" id="rRarity" style="display:none;margin-bottom:24px">SSR</div>
+
+      <!-- 卡背（初始显示） -->
+      <div id="rCardBackFace" onclick="flipCard()" style="width:220px;height:300px;background:var(--card);border:2px solid var(--gold);box-shadow:0 0 40px rgba(201,160,99,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;flex-shrink:0;overflow:hidden">
+        <!-- 顶部装饰条 -->
+        <div style="position:absolute;top:0;left:0;right:0;height:6px;background:var(--gold);opacity:.3"></div>
+        <!-- 底部装饰条 -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:6px;background:var(--gold);opacity:.3"></div>
+        <!-- 内框 -->
+        <div style="position:absolute;inset:14px;border:1px solid var(--gold);opacity:.4"></div>
+        <!-- 中央图案 -->
+        <div style="width:60px;height:60px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;opacity:.7">
+          <span style="font-size:24px;opacity:.6">✦</span>
+        </div>
+        <div style="font-size:22px;font-weight:900;letter-spacing:8px;color:var(--ink);opacity:.8;margin-left:8px">碰景</div>
+        <div style="width:40px;height:1px;background:var(--gold);margin:12px 0"></div>
+        <div style="font-size:8px;letter-spacing:5px;color:var(--ink-3)">FUNSPOT</div>
+        <div style="position:absolute;bottom:28px;font-size:10px;color:var(--gold);letter-spacing:3px">轻 点 翻 牌</div>
+        <div style="position:absolute;top:22px;right:20px;font-size:8px;color:var(--gold);opacity:.5">No.036</div>
+      </div>
+
+      <!-- 卡面（翻牌后显示） -->
+      <div id="rCardFrontFace" onclick="flipCard()" style="display:none;width:220px;height:300px;background:var(--card);border:2px solid var(--gold);box-shadow:0 0 40px rgba(201,160,99,.25);display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;flex-shrink:0;overflow:hidden">
+        <!-- 顶部稀有度标签 -->
+        <div style="position:absolute;top:0;left:0;right:0;height:28px;background:var(--gold);display:flex;align-items:center;justify-content:center">
+          <span style="font-size:11px;font-weight:900;color:#fff;letter-spacing:3px" id="rRarityTag">SSR</span>
+        </div>
+        <!-- 景点图片区 -->
+        <div style="margin-top:48px;width:160px;height:110px;overflow:hidden;margin-bottom:16px;background:var(--paper-2)">
+          <img id="rPicImg" src="https://aka.doubaocdn.com/s/C6HLLiWhaD" style="width:100%;height:100%;object-fit:cover" alt="景点图片">
+        </div>
+        <!-- 文字区 -->
+        <div id="rName" style="font-size:22px;font-weight:900;margin-bottom:6px;text-align:center;letter-spacing:2px;color:#000">故宫博物院</div>
+        <div id="rEn" style="font-size:9px;letter-spacing:3px;color:var(--ink-3);margin-bottom:12px;text-align:center">THE FORBIDDEN CITY</div>
+        <div style="width:24px;height:1px;background:var(--gold);margin-bottom:10px"></div>
+        <div id="rDesc" style="font-size:10.5px;color:var(--ink-2);line-height:1.6;text-align:center;padding:0 20px">红墙黄瓦，六百年皇城。</div>
+        <!-- 底部编号 -->
+        <div style="position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:space-between;padding:0 16px">
+          <span style="font-size:8px;color:var(--gold);letter-spacing:1px" id="rNo">No.001/036</span>
+          <span style="font-size:8px;color:var(--ink-3)">碰景收集</span>
+        </div>
+      </div>
+
+      <div id="rAfter" style="display:none;margin-top:24px;font-size:11px;opacity:.6;letter-spacing:1px;text-align:center">
+        🎴 今日剩余抽卡：4 次 · 再 2 抽必得 SR
+      </div>
+    </div>
+    <div class="result-actions" style="padding:0 24px 20px;flex-shrink:0">
+      <button class="btn-ghost-paper" onclick="drawCard()">再抽一次</button>
+      <button class="btn-solid-paper" onclick="go('detail')">收入卡包 →</button>
+    </div>
+  </section>
+
+  <!-- 7 集卡册 -->
+  <section class="screen" id="album">
+    <div class="album-head">
+      <h2>集卡册</h2>
+      <div class="cnt" id="albumCount">3 / 36</div>
+    </div>
+
+    <div class="album-cover">
+      <div class="vol">VOL.01 · 城市卷</div>
+      <h3>北京 · 皇城根下</h3>
+      <div class="sub">BEIJING · 36 张</div>
+      <div class="prog"><i id="albumProg" style="width:8%"></i></div>
+      <div class="prog-txt">收集度 8% · 继续探索解锁更多</div>
+    </div>
+
+    <div class="album-filters">
+      <div class="chip on">全部</div>
+      <div class="chip">SSR</div>
+      <div class="chip">SR</div>
+      <div class="chip">R</div>
+      <div class="chip">N</div>
+    </div>
+
+    <div class="card-grid" id="cardGrid">
+      <!-- JS 动态渲染 -->
+    </div>
+
+    <div class="tabbar">
+      <div class="tab" onclick="go('home')"><div class="ic">⌂</div>首页</div>
+      <div class="tab active"><div class="ic">▦</div>集卡册</div>
+      <div class="tab draw" onclick="drawCard()"><div class="ic">✦</div></div>
+      <div class="tab" onclick="go('footprint')"><div class="ic">◎</div>足迹</div>
+      <div class="tab" onclick="go('profile')"><div class="ic">○</div>我的</div>
+    </div>
+  </section>
+
+  <!-- 8 DETAIL -->
+  <section class="screen" id="detail">
+    <div class="detail-hero" id="detail-hero">
+      <div class="back" onclick="go('home')">‹</div>
+      <div class="save">♡</div>
+    </div>
+    <div class="detail-body">
+      <div class="top">
+        <span class="rarity r-ssr" id="detail-rarity">SSR</span>
+        <span style="font-size:10.5px;color:var(--ink-3)" id="detail-collect">收藏值 9.6</span>
+      </div>
+      <h2 id="detail-title">故宫博物院</h2>
+      <div class="addr" id="detail-addr">📍 东城区景山前街 4 号 · 距你 4.2 km</div>
+      <div class="desc" id="detail-desc">明清两代皇宫旧址，藏有百万件宫廷文物。建议午门进、神武门出，预留半天。</div>
+      <div class="detail-stats">
+        <div class="ds"><b id="stat-dist">4.2km</b><span>距离</span></div>
+        <div class="ds"><b id="stat-ticket">¥60</b><span>门票</span></div>
+        <div class="ds"><b id="stat-time">4h</b><span>时长</span></div>
+        <div class="ds"><b id="stat-score">4.8</b><span>评分</span></div>
+      </div>
+      <div class="detail-cta">
+        <button class="nav" onclick="go('navi')">一键导航</button>
+        <button class="ck" onclick="go('checkin')">签到</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 NAVI -->
+  <section class="screen" id="navi">
+    <div class="map-area">
+      <div class="me"></div>
+      <div class="route-line"></div>
+      <div class="dest">⛩</div>
+    </div>
+    <div class="navi-bottom">
+      <h3>前往 故宫博物院 · 午门</h3>
+      <div class="eta">预计 18 分钟 · 4.2 km · 畅通</div>
+      <div class="route-opt on">
+        <div class="ic">🚶</div>
+        <div class="info"><b>步行最快</b><span>55 分钟 · 2.8 km</span></div>
+        <div class="min">55'</div>
+      </div>
+      <div class="route-opt">
+        <div class="ic">🚇</div>
+        <div class="info"><b>地铁优先</b><span>8 号线什刹海 → 金鱼胡同</span></div>
+        <div class="min">25'</div>
+      </div>
+      <div class="route-opt">
+        <div class="ic">🚌</div>
+        <div class="info"><b>公交观光</b><span>观光 1 线 · 沿途 3 景</span></div>
+        <div class="min">35'</div>
+      </div>
+      <button class="btn-primary" onclick="go('checkin')">开始导航</button>
+    </div>
+  </section>
+
+  <!-- 10 CHECKIN -->
+  <section class="screen" id="checkin">
+    <div class="big">✓</div>
+    <h2>打卡成功</h2>
+    <p>你已抵达 故宫博物院 · 午门<br>这张 SSR 正式收入卡包</p>
+    <div class="reward-strip">
+      <div class="rt">REWARD · 本次获得</div>
+      <div class="rv">+120 经验 · +1 抽卡券</div>
+    </div>
+    <button class="btn-brand" onclick="go('feedback')">写个评价 ›</button>
+    <div style="height:10px"></div>
+    <button class="btn-outline" style="border-color:rgba(255,255,255,.5);color:#fff" onclick="go('home')">先逛逛</button>
+  </section>
+
+  <!-- 11 FEEDBACK -->
+  <section class="screen" id="feedback">
+    <h2>这趟体验如何？</h2>
+    <div class="sub">你的反馈让下次抽卡更准</div>
+    <div class="stars-row">
+      <span class="on">★</span><span class="on">★</span><span class="on">★</span><span class="on">★</span><span>★</span>
+    </div>
+    <div class="fb-tags">
+      <div class="chip on">超出片</div>
+      <div class="chip">好预约</div>
+      <div class="chip">适合带家人</div>
+      <div class="chip">人少清幽</div>
+      <div class="chip">有点累</div>
+    </div>
+    <div class="fb-input">分享一句真实感受……</div>
+    <button class="btn-primary" onclick="go('home')">提交反馈</button>
+    <div style="height:8px"></div>
+    <button class="btn-outline" onclick="go('home')">下次再说</button>
+  </section>
+
+  <!-- 12 我的 -->
+  <section class="screen" id="profile">
+    <div class="prof-head">
+      <div class="row">
+        <div class="av">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z"/></svg>
+        </div>
+        <div>
+          <div class="nm">旅行家小碰</div>
+          <div class="lv">Lv.6 探索家 · ID funspot_2026</div>
+        </div>
+        <div class="edit" onclick="go('edit')">编辑</div>
+      </div>
+    </div>
+
+    <div class="prof-stats">
+      <div class="ps"><b>8</b><span>集卡</span></div>
+      <div class="ps"><b>12</b><span>打卡</span></div>
+      <div class="ps"><b>7</b><span>连续</span></div>
+      <div class="ps"><b>3</b><span>合集</span></div>
+    </div>
+
+    <div class="badge-sec">
+      <div class="sec-label">勋章墙</div>
+      <div class="badge-row">
+        <div class="badge"><div class="bic">🔥</div><div class="bn">连续7天</div></div>
+        <div class="badge"><div class="bic">🏯</div><div class="bn">皇城探秘</div></div>
+        <div class="badge locked"><div class="bic">🌙</div><div class="bn">夜游北京</div></div>
+        <div class="badge locked"><div class="bic">📸</div><div class="bn">摄影达人</div></div>
+      </div>
+    </div>
+
+    <div class="menu-list">
+      <div class="menu-item" onclick="go('coupon')"><span class="mi">🎟</span>卡券中心<span class="arr">›</span></div>
+      <div class="menu-item" onclick="go('friends')"><span class="mi">👥</span>碰景好友<span class="arr">›</span></div>
+      <div class="menu-item" onclick="go('settings')"><span class="mi">⚙</span>设置<span class="arr">›</span></div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab" onclick="go('home')"><div class="ic">⌂</div>首页</div>
+      <div class="tab" onclick="go('album')"><div class="ic">▦</div>集卡册</div>
+      <div class="tab draw" onclick="drawCard()"><div class="ic">✦</div></div>
+      <div class="tab" onclick="go('footprint')"><div class="ic">◎</div>足迹</div>
+      <div class="tab active"><div class="ic">○</div>我的</div>
+    </div>
+  </section>
+
+  <!-- 13 卡券中心 -->
+  <section class="screen sub-page" id="coupon">
+    <div class="sub-head">
+      <div class="back" onclick="go('profile')">‹</div>
+      <h2>卡券中心</h2>
+    </div>
+    <div class="coupon-list">
+      <div class="coupon">
+        <div class="left"><div class="num">2</div><div class="unit">抽卡券</div></div>
+        <div class="right">
+          <div class="nm">每日抽卡券</div>
+          <div class="ds">抽卡时可额外获得一次机会</div>
+          <div class="expire">有效期至 2026.11.30</div>
+          <button class="use">使用</button>
+        </div>
+      </div>
+      <div class="coupon">
+        <div class="left teal"><div class="num">8</div><div class="unit">折</div></div>
+        <div class="right">
+          <div class="nm">故宫博物院门票 8 折券</div>
+          <div class="ds"> SSR 景点专属折扣，需现场出示</div>
+          <div class="expire">有效期至 2026.12.31</div>
+          <button class="use">使用</button>
+        </div>
+      </div>
+      <div class="coupon">
+        <div class="left gold"><div class="num">1</div><div class="unit">次</div></div>
+        <div class="right">
+          <div class="nm">免费语音导览</div>
+          <div class="ds">任意 SR 以上景点可用</div>
+          <div class="expire">有效期至 2026.11.15</div>
+          <button class="use">使用</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 碰景好友 -->
+  <section class="screen sub-page" id="friends">
+    <div class="sub-head">
+      <div class="back" onclick="go('profile')">‹</div>
+      <h2>碰景好友</h2>
+    </div>
+    <div class="friend-search">
+      <div class="box">🔍 搜索好友昵称 / ID</div>
+    </div>
+    <div class="friend-list">
+      <div class="friend-item">
+        <div class="av">🐱</div>
+        <div class="info">
+          <div class="nm">猫南北</div>
+          <div class="meta">已收集 15 张 · 最近去了 颐和园</div>
+        </div>
+        <div class="act">看主页</div>
+      </div>
+      <div class="friend-item">
+        <div class="av">☕</div>
+        <div class="info">
+          <div class="nm">咖啡续命</div>
+          <div class="meta">已收集 9 张 · 最近去了 五道营胡同</div>
+        </div>
+        <div class="act">看主页</div>
+      </div>
+      <div class="friend-item">
+        <div class="av">📚</div>
+        <div class="info">
+          <div class="nm">逛博物馆的人</div>
+          <div class="meta">已收集 22 张 · 最近去了 故宫博物院</div>
+        </div>
+        <div class="act">看主页</div>
+      </div>
+      <div class="friend-item">
+        <div class="av">🏃</div>
+        <div class="info">
+          <div class="nm">City Walk 王</div>
+          <div class="meta">已收集 6 张 · 最近去了 什刹海</div>
+        </div>
+        <div class="act">看主页</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 设置 -->
+  <section class="screen sub-page" id="settings">
+    <div class="sub-head">
+      <div class="back" onclick="go('profile')">‹</div>
+      <h2>设置</h2>
+    </div>
+    <div class="setting-list">
+      <div class="setting-item">
+        <div class="lbl">推送通知</div>
+        <div class="switch on"></div>
+      </div>
+      <div class="setting-item">
+        <div class="lbl">定位授权</div>
+        <div class="val">已开启</div>
+        <div class="arr">›</div>
+      </div>
+      <div class="setting-item">
+        <div class="lbl">隐私设置</div>
+        <div class="arr">›</div>
+      </div>
+      <div class="setting-item">
+        <div class="lbl">缓存清理</div>
+        <div class="val">已清理</div>
+        <div class="arr">›</div>
+      </div>
+    </div>
+    <div class="setting-list">
+      <div class="setting-item">
+        <div class="lbl">关于碰景</div>
+        <div class="val">v1.0.0</div>
+        <div class="arr">›</div>
+      </div>
+      <div class="setting-item">
+        <div class="lbl">用户协议</div>
+        <div class="arr">›</div>
+      </div>
+      <div class="setting-item">
+        <div class="lbl" style="color:var(--brand)">退出登录</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 编辑资料 -->
+  <section class="screen sub-page" id="edit">
+    <div class="sub-head">
+      <div class="back" onclick="go('profile')">‹</div>
+      <h2>编辑资料</h2>
+    </div>
+    <div class="edit-av">
+      <div class="big">🦌</div>
+      <div class="change">更换头像</div>
+    </div>
+    <div class="edit-form">
+      <div class="edit-row">
+        <div class="lbl">昵称</div>
+        <div class="val">小鹿在碰景</div>
+        <div class="arr">›</div>
+      </div>
+      <div class="edit-row">
+        <div class="lbl">简介</div>
+        <div class="val">在城市里收集风景的人</div>
+        <div class="arr">›</div>
+      </div>
+      <div class="edit-row">
+        <div class="lbl">常居城市</div>
+        <div class="val">北京</div>
+        <div class="arr">›</div>
+      </div>
+      <div class="edit-row">
+        <div class="lbl">生日</div>
+        <div class="val">1998.06.15</div>
+        <div class="arr">›</div>
+      </div>
+    </div>
+    <div style="padding:0 22px">
+      <button class="btn-primary">保存修改</button>
+    </div>
+  </section>
+
+  <!-- 17 足迹地图 -->
+  <section class="screen sub-page" id="footprint">
+    <div class="sub-head">
+      <h2>我的足迹</h2>
+    </div>
+    <div class="foot-map">
+      <div class="pin" style="left:25%;top:35%;background:var(--brand)"></div>
+      <div class="pin" style="left:50%;top:55%;background:var(--teal)"></div>
+      <div class="pin" style="left:65%;top:25%;background:var(--pink)"></div>
+      <div class="pin" style="left:35%;top:70%;background:var(--gold)"></div>
+    </div>
+    <div class="foot-list" style="flex:1;overflow-y:auto">
+      <div class="foot-item">
+        <div class="pic"><img src="https://aka.doubaocdn.com/s/C6HLLiWhaD" alt="故宫"></div>
+        <div class="info">
+          <div class="nm">故宫博物院</div>
+          <div class="date">2026.10.20 · 东城区</div>
+        </div>
+        <div class="badge">SSR</div>
+      </div>
+      <div class="foot-item">
+        <div class="pic"><img src="https://aka.doubaocdn.com/s/A30epEgnXB" alt="南锣鼓巷"></div>
+        <div class="info">
+          <div class="nm">南锣鼓巷</div>
+          <div class="date">2026.10.18 · 东城区</div>
+        </div>
+        <div class="badge">R</div>
+      </div>
+      <div class="foot-item">
+        <div class="pic"><img src="https://aka.doubaocdn.com/s/dOdW7CCCeh" alt="颐和园"></div>
+        <div class="info">
+          <div class="nm">颐和园</div>
+          <div class="date">2026.10.15 · 海淀区</div>
+        </div>
+        <div class="badge">SR</div>
+      </div>
+      <div class="foot-item">
+        <div class="pic"><img src="https://aka.doubaocdn.com/s/N0gqetSzrG" alt="五道营胡同"></div>
+        <div class="info">
+          <div class="nm">五道营胡同</div>
+          <div class="date">2026.10.12 · 东城区</div>
+        </div>
+        <div class="badge">N</div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab" onclick="go('home')"><div class="ic">⌂</div>首页</div>
+      <div class="tab" onclick="go('album')"><div class="ic">▦</div>集卡册</div>
+      <div class="tab draw" onclick="drawCard()"><div class="ic">✦</div></div>
+      <div class="tab active"><div class="ic">◎</div>足迹</div>
+      <div class="tab" onclick="go('profile')"><div class="ic">○</div>我的</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // ===== 数据 =====
+  var allCards = [
+    {id:1, rarity:'SSR', cls:'gold', pic:'🏯', img:'https://aka.doubaocdn.com/s/C6HLLiWhaD', name:'故宫博物院', en:'THE FORBIDDEN CITY', ds:'红墙黄瓦，六百年皇城。', no:'No.001/036', area:'东城区'},
+    {id:2, rarity:'SSR', cls:'gold', pic:'🏔', img:'https://aka.doubaocdn.com/s/BXrARd1wng', name:'八达岭长城', en:'BADALING GREAT WALL', ds:'不到长城非好汉。', no:'No.002/036', area:'延庆'},
+    {id:3, rarity:'SR', cls:'pink', pic:'🏞', img:'https://aka.doubaocdn.com/s/dOdW7CCCeh', name:'颐和园', en:'SUMMER PALACE', ds:'万寿山下，昆明湖畔。', no:'No.003/036', area:'海淀区'},
+    {id:4, rarity:'SR', cls:'pink', pic:'⛩', img:'https://aka.doubaocdn.com/s/5iV9ZHc9zO', name:'天坛公园', en:'TEMPLE OF HEAVEN', ds:'祈年殿的蓝色琉璃瓦。', no:'No.004/036', area:'东城区'},
+    {id:5, rarity:'R', cls:'purple', pic:'🏘', img:'https://aka.doubaocdn.com/s/A30epEgnXB', name:'南锣鼓巷', en:'NANLUOGUXIANG', ds:'元大都里的胡同脉络。', no:'No.005/036', area:'东城区'},
+    {id:6, rarity:'R', cls:'purple', pic:'🚲', img:'https://aka.doubaocdn.com/s/SBPmYcNkLY', name:'什刹海', en:'SHOUCHIHAI', ds:'湖边骑行，老北京味道。', no:'No.006/036', area:'西城区'},
+    {id:7, rarity:'N', cls:'gray', pic:'🎨', img:'https://aka.doubaocdn.com/s/rDfMKVLTVA', name:'798艺术区', en:'798 ART DISTRICT', ds:'旧厂房里的当代艺术。', no:'No.007/036', area:'朝阳区'},
+    {id:8, rarity:'N', cls:'gray', pic:'🍵', img:'https://aka.doubaocdn.com/s/N0gqetSzrG', name:'五道营胡同', en:'WUDAOYING', ds:'小众文艺胡同，咖啡香。', no:'No.008/036', area:'东城区'}
+  ];
+
+  // ===== 状态（localStorage） =====
+  function getCollected(){
+    try{ return JSON.parse(localStorage.getItem('fs_collected')||'[1,3,5]'); }
+    catch(e){ return [1,3,5]; }
+  }
+  function setCollected(arr){
+    localStorage.setItem('fs_collected', JSON.stringify(arr));
+  }
+  function getDrawCount(){
+    try{ return parseInt(localStorage.getItem('fs_draws')||'0'); }
+    catch(e){ return 0; }
+  }
+  function setDrawCount(n){
+    localStorage.setItem('fs_draws', n);
+  }
+
+  // ===== 页面切换 =====
+  function go(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(id==='album') renderAlbum();
+    if(id==='home') updateHomeStats();
+  }
+
+  // ===== 景点详情数据 =====
+  var spots = {
+    gugong: {
+      title: '故宫博物院', rarity: 'SSR', rarityCls: 'r-ssr', collect: '9.6',
+      addr: '东城区景山前街 4 号 · 距你 4.2 km',
+      desc: '明清两代皇宫旧址，藏有百万件宫廷文物。建议午门进、神武门出，预留半天。',
+      img: 'https://aka.doubaocdn.com/s/C6HLLiWhaD',
+      dist: '4.2km', ticket: '¥60', time: '4h', score: '4.8'
+    },
+    nanluoguxiang: {
+      title: '南锣鼓巷', rarity: 'R', rarityCls: 'r-r', collect: '7.2',
+      addr: '东城区南锣鼓巷 · 距你 1.2 km',
+      desc: '北京最古老的街区之一，胡同里藏着各种文创小店和咖啡馆，适合慢慢逛。',
+      img: 'https://aka.doubaocdn.com/s/A30epEgnXB',
+      dist: '1.2km', ticket: '免费', time: '2h', score: '4.8'
+    },
+    shichahai: {
+      title: '什刹海', rarity: 'SR', rarityCls: 'r-sr', collect: '8.5',
+      addr: '西城区什刹海 · 距你 2.8 km',
+      desc: '由前海、后海、西海组成的历史文化风景区，傍晚沿湖散步看夜景最美。',
+      img: 'https://aka.doubaocdn.com/s/SBPmYcNkLY',
+      dist: '2.8km', ticket: '免费', time: '3h', score: '4.7'
+    },
+    daowuying: {
+      title: '五道营胡同', rarity: 'N', rarityCls: 'r-n', collect: '6.8',
+      addr: '东城区五道营胡同 · 距你 3.5 km',
+      desc: '比南锣鼓巷更安静的文艺胡同，有很多独立设计师店和小酒馆。',
+      img: 'https://aka.doubaocdn.com/s/N0gqetSzrG',
+      dist: '3.5km', ticket: '免费', time: '1.5h', score: '4.6'
+    }
+  };
+
+  function openDetail(spotKey){
+    var s = spots[spotKey];
+    if(!s) return;
+    document.getElementById('detail-hero').style.backgroundImage = 'url(' + s.img + ')';
+    document.getElementById('detail-title').textContent = s.title;
+    document.getElementById('detail-addr').textContent = '📍 ' + s.addr;
+    document.getElementById('detail-desc').textContent = s.desc;
+    document.getElementById('detail-rarity').textContent = s.rarity;
+    document.getElementById('detail-rarity').className = 'rarity ' + s.rarityCls;
+    document.getElementById('detail-collect').textContent = '收藏值 ' + s.collect;
+    document.getElementById('stat-dist').textContent = s.dist;
+    document.getElementById('stat-ticket').textContent = s.ticket;
+    document.getElementById('stat-time').textContent = s.time;
+    document.getElementById('stat-score').textContent = s.score;
+    go('detail');
+  }
+
+  // ===== 抽卡逻辑 =====
+  function drawCard(){
+    var collected = getCollected();
+    // 80%概率抽到没收集的，20%重复
+    var uncollected = allCards.filter(c=>collected.indexOf(c.id)<0);
+    var pool = (uncollected.length>0 && Math.random()<0.85) ? uncollected : allCards;
+    var card = pool[Math.floor(Math.random()*pool.length)];
+
+    // 更新状态
+    if(collected.indexOf(card.id)<0){ collected.push(card.id); setCollected(collected); }
+    setDrawCount(getDrawCount()+1);
+
+    // 渲染结果页
+    document.getElementById('rRarity').textContent = card.rarity;
+    document.getElementById('rRarity').className = 'rarity-big ' + card.cls;
+    document.getElementById('rRarityTag').textContent = card.rarity;
+    document.getElementById('rPicImg').src = card.img;
+    document.getElementById('rName').textContent = card.name;
+    document.getElementById('rEn').textContent = card.en;
+    document.getElementById('rDesc').textContent = card.ds;
+    document.getElementById('rNo').textContent = card.no;
+
+    // 根据稀有度改卡片边框颜色
+    var borderColor = card.cls === 'gold' ? 'var(--gold)' : card.cls === 'pink' ? 'var(--pink)' : card.cls === 'purple' ? 'var(--purple)' : 'var(--gray)';
+    var glowColor = card.cls === 'gold' ? 'rgba(201,160,99,.25)' : card.cls === 'pink' ? 'rgba(224,90,110,.2)' : card.cls === 'purple' ? 'rgba(120,100,180,.2)' : 'rgba(150,150,150,.15)';
+    document.getElementById('rCardBackFace').style.borderColor = borderColor;
+    document.getElementById('rCardBackFace').style.boxShadow = '0 0 40px ' + glowColor;
+    document.getElementById('rCardFrontFace').style.borderColor = borderColor;
+    document.getElementById('rCardFrontFace').style.boxShadow = '0 0 40px ' + glowColor;
+    document.getElementById('rRarityTag').parentElement.style.background = borderColor;
+
+    // 重置为卡背朝上
+    document.getElementById('rCardBackFace').style.display = 'flex';
+    document.getElementById('rCardFrontFace').style.display = 'none';
+    document.getElementById('rCongrats').style.display = 'none';
+    document.getElementById('rRarity').style.display = 'none';
+    document.getElementById('rAfter').style.display = 'none';
+
+    go('result');
+  }
+
+  // 翻牌
+  function flipCard(){
+    var back = document.getElementById('rCardBackFace');
+    var front = document.getElementById('rCardFrontFace');
+    if(back.style.display !== 'none'){
+      back.style.display = 'none';
+      front.style.display = 'flex';
+    } else {
+      back.style.display = 'flex';
+      front.style.display = 'none';
+    }
+    document.getElementById('rRarity').style.display = 'block';
+    document.getElementById('rCongrats').style.display = 'block';
+    document.getElementById('rAfter').style.display = 'block';
+  }
+
+  // ===== 集卡册渲染 =====
+  function renderAlbum(){
+    var collected = getCollected();
+    var grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+    allCards.forEach(function(c){
+      var isGot = collected.indexOf(c.id) >= 0;
+      var div = document.createElement('div');
+      div.className = 'collect-card ' + c.cls + (isGot?'':' locked');
+      div.onclick = function(){ if(isGot) go('detail'); };
+      div.innerHTML =
+        '<div class="pic" style="overflow:hidden">' + (isGot?'<img src="'+c.img+'" style="width:100%;height:100%;object-fit:cover">':'?') +
+        '<span class="no">' + c.no + '</span>' +
+        '<span class="rt rarity r-' + c.rarity.toLowerCase() + '">' + c.rarity + '</span>' +
+        '</div>' +
+        '<div class="info"><div class="nm">' + (isGot?c.name:'未解锁') + '</div>' +
+        '<div class="loc">' + (isGot?c.area+' · 已打卡':'未收集') + '</div></div>';
+      grid.appendChild(div);
+    });
+    // 更新计数
+    document.getElementById('albumCount').textContent = collected.length + ' / 36';
+    document.getElementById('albumProg').style.width = (collected.length/36*100) + '%';
+  }
+
+  // ===== 首页统计 =====
+  function updateHomeStats(){
+    var collected = getCollected();
+    document.getElementById('homeCollected').textContent = collected.length;
+    document.getElementById('homeDraws').textContent = getDrawCount();
+  }
+
+  // ===== chip 点击 =====
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.addEventListener('click', function(){
+      var parent = this.parentElement;
+      // 同组单选（filter类）
+      if(parent.parentElement && parent.parentElement.classList.contains('album-filters')){
+        parent.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on')});
+        this.classList.add('on');
+      } else {
+        this.classList.toggle('on');
+      }
+    });
+  });
+
+  // 初始化
+  updateHomeStats();
+  renderAlbum();
+</script>
+</body>
+</html>
